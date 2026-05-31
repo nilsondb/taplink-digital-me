@@ -19,13 +19,18 @@ export const SOCIALS: { key: SocialKey; label: string; icon: LucideIcon; placeho
   { key: "website", label: "Website", icon: Globe, placeholder: "https://seusite.com", href: (v) => v.startsWith("http") ? v : `https://${v}` },
 ];
 
-export function generateSlug(name: string): string {
-  const base = (name || "perfil")
-    .toLowerCase()
+export function sanitizeSlug(s: string): string {
+  return s.toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^a-z0-9_-]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, 24) || "perfil";
-  const rand = Math.random().toString(36).slice(2, 7);
-  return `${base}-${rand}`;
+    .slice(0, 32);
 }
+
+export const SLUG_REGEX = /^[a-zA-Z0-9_-]{3,32}$/;
+
+// Reserved slugs that conflict with app routes
+export const RESERVED_SLUGS = new Set([
+  "login", "signup", "logout", "forgot-password", "reset-password",
+  "dashboard", "edit", "api", "admin", "auth", "settings", "_authenticated",
+]);
