@@ -14,9 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      link_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          link_key: string
+          link_type: string
+          profile_id: string
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          link_key: string
+          link_type: string
+          profile_id: string
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          link_key?: string
+          link_type?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_clicks_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_views: {
+        Row: {
+          id: string
+          profile_id: string
+          referrer: string | null
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          referrer?: string | null
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           bio: string | null
+          clicks_count: number
           created_at: string
           custom_links: Json
           facebook: string | null
@@ -30,12 +95,15 @@ export type Database = {
           tiktok: string | null
           twitter: string | null
           updated_at: string
+          user_id: string
+          views_count: number
           website: string | null
           whatsapp: string | null
           youtube: string | null
         }
         Insert: {
           bio?: string | null
+          clicks_count?: number
           created_at?: string
           custom_links?: Json
           facebook?: string | null
@@ -49,12 +117,15 @@ export type Database = {
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
+          user_id: string
+          views_count?: number
           website?: string | null
           whatsapp?: string | null
           youtube?: string | null
         }
         Update: {
           bio?: string | null
+          clicks_count?: number
           created_at?: string
           custom_links?: Json
           facebook?: string | null
@@ -68,6 +139,8 @@ export type Database = {
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
+          user_id?: string
+          views_count?: number
           website?: string | null
           whatsapp?: string | null
           youtube?: string | null

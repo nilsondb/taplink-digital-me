@@ -12,24 +12,18 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster as SonnerToaster } from "sonner";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+        <h1 className="text-7xl font-bold gradient-text">404</h1>
+        <h2 className="mt-4 text-xl font-semibold">Página não encontrada</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Este link não existe ou foi removido.</p>
+        <Link to="/" className="btn-primary inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold mt-6">
+          Voltar ao início
+        </Link>
       </div>
     </div>
   );
@@ -45,28 +39,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <h1 className="text-xl font-semibold">Algo deu errado</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
+          <button onClick={() => { router.invalidate(); reset(); }} className="btn-primary rounded-xl px-4 py-2 text-sm font-semibold">
+            Tentar novamente
           </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
+          <a href="/" className="glass rounded-xl px-4 py-2 text-sm font-medium">Início</a>
         </div>
       </div>
     </div>
@@ -78,25 +57,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "LinkTap Pro is a SaaS application that allows users to create a personalized digital profile page." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "LinkTap Pro is a SaaS application that allows users to create a personalized digital profile page." },
+      { title: "TapLink NFC — Seu perfil digital em um toque" },
+      { name: "description", content: "Plataforma para criar seu perfil digital com URL, QR Code e Tags NFC. Login, dashboard e estatísticas." },
+      { property: "og:title", content: "TapLink NFC" },
+      { property: "og:description", content: "Seu perfil digital em um toque." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "LinkTap Pro is a SaaS application that allows users to create a personalized digital profile page." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1b564e7d-1b83-4066-b157-37404e8df334/id-preview-8d3dd046--68720da3-6c40-48a8-9716-e8f495180a3b.lovable.app-1780195865655.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1b564e7d-1b83-4066-b157-37404e8df334/id-preview-8d3dd046--68720da3-6c40-48a8-9716-e8f495180a3b.lovable.app-1780195865655.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -106,25 +74,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
+    <html lang="pt-BR">
+      <head><HeadContent /></head>
+      <body>{children}<Scripts /></body>
     </html>
   );
 }
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <SonnerToaster theme="dark" position="top-center" richColors />
+      <AuthProvider>
+        <Outlet />
+        <SonnerToaster theme="dark" position="top-center" richColors />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
