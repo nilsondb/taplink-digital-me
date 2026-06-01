@@ -88,6 +88,8 @@ function EditPage() {
         telegram: socials.telegram?.trim() || null, twitter: socials.twitter?.trim() || null,
         website: socials.website?.trim() || null,
         custom_links: cleanedLinks,
+        theme,
+
       };
 
       if (existing) {
