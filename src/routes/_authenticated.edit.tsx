@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { SOCIALS, sanitizeSlug, SLUG_REGEX, RESERVED_SLUGS, type CustomLink, type SocialKey } from "@/lib/social";
 import { ProfilePreview, type ProfileData } from "@/components/ProfilePreview";
+import { THEMES, type ThemeKey } from "@/lib/themes";
+
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
