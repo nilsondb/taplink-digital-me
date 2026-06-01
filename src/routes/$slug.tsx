@@ -79,8 +79,9 @@ function PublicProfile() {
   const customLinks = ((profile.custom_links as unknown) as CustomLink[]) || [];
 
   return (
-    <div className="min-h-screen px-6 py-12">
+    <div className={`${themeClass((profile as { theme?: string }).theme)} themed-surface min-h-screen px-6 py-12`}>
       <div className="w-full max-w-md mx-auto glass rounded-3xl p-7 text-center">
+
         <div className="w-28 h-28 mx-auto rounded-full overflow-hidden ring-4 ring-primary/30 bg-muted grid place-items-center">
           {profile.photo_url ? (
             <img src={profile.photo_url} alt={profile.name} className="w-full h-full object-cover" />
