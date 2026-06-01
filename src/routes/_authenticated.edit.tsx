@@ -158,6 +158,32 @@ function EditPage() {
           </div>
         </Section>
 
+        <Section title="Aparência do perfil" subtitle="Escolha o tema visual da sua página pública">
+          <div className="grid sm:grid-cols-3 gap-3">
+            {THEMES.map((t) => {
+              const active = theme === t.key;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setTheme(t.key)}
+                  className={`theme-${t.key} themed-surface text-left rounded-2xl p-4 border-2 transition focus:outline-none ${active ? "border-primary shadow-[0_0_0_4px_oklch(var(--ring)/0.25)]" : "border-transparent hover:scale-[1.02]"}`}
+                  aria-pressed={active}
+                >
+                  <div className="flex gap-1.5 mb-3">
+                    {t.swatch.map((c, i) => (
+                      <span key={i} className="w-6 h-6 rounded-full ring-1 ring-white/20" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <div className="font-display font-bold text-sm text-foreground">{t.name}</div>
+                  <div className="text-[11px] text-muted-foreground mt-1 leading-snug">{t.description}</div>
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+
+
         <Section title="Links personalizados" subtitle="Botões extras para qualquer URL">
           <div className="space-y-3">
             {customLinks.map((l, i) => (
