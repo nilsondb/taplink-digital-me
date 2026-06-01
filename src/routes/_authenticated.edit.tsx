@@ -45,6 +45,8 @@ function EditPage() {
           telegram: data.telegram || "", twitter: data.twitter || "", website: data.website || "",
         });
         setCustomLinks(((data.custom_links as unknown) as CustomLink[]) || []);
+        setTheme(((data as { theme?: ThemeKey }).theme as ThemeKey) || "neon-dark");
+
       }
       setLoading(false);
     });
