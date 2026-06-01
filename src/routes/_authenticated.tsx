@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Loader2, LogOut, Sparkles, LayoutDashboard, Pencil } from "lucide-react";
+import { Loader2, LogOut, Sparkles, LayoutDashboard, Pencil, Shield } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useIsAdmin } from "@/lib/admin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthLayout() {
   const { user, loading } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,6 +43,11 @@ function AuthLayout() {
           <Link to="/edit" className="px-3 py-2 rounded-lg text-sm hover:bg-white/5 inline-flex items-center gap-2" activeProps={{ className: "px-3 py-2 rounded-lg text-sm bg-white/5 inline-flex items-center gap-2" }}>
             <Pencil className="w-4 h-4" /> <span className="hidden sm:inline">Editar</span>
           </Link>
+          {isAdmin && (
+            <Link to="/admin" className="px-3 py-2 rounded-lg text-sm hover:bg-white/5 inline-flex items-center gap-2 text-primary" activeProps={{ className: "px-3 py-2 rounded-lg text-sm bg-primary/10 inline-flex items-center gap-2 text-primary" }}>
+              <Shield className="w-4 h-4" /> <span className="hidden sm:inline">Admin</span>
+            </Link>
+          )}
           <button onClick={logout} className="px-3 py-2 rounded-lg text-sm hover:bg-destructive/20 hover:text-destructive inline-flex items-center gap-2">
             <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sair</span>
           </button>
