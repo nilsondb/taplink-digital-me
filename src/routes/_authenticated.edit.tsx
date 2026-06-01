@@ -29,6 +29,8 @@ function EditPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [socials, setSocials] = useState<Partial<Record<SocialKey, string>>>({});
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
+  const [theme, setTheme] = useState<ThemeKey>("neon-dark");
+
 
   useEffect(() => {
     if (!user) return;
