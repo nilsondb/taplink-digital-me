@@ -112,7 +112,7 @@ function EditPage() {
 
   if (loading) return <div className="grid place-items-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
 
-  const data: ProfileData = { name, bio, photo_url: photoPreview, socials, custom_links: customLinks };
+  const data: ProfileData = { name, bio, photo_url: photoPreview, socials, custom_links: customLinks, theme };
 
   return (
     <main className="px-6 pb-24 max-w-6xl mx-auto grid lg:grid-cols-[1fr_380px] gap-8">
