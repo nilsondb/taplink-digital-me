@@ -1,5 +1,6 @@
 import { User } from "lucide-react";
 import { SOCIALS, type CustomLink, type SocialKey } from "@/lib/social";
+import { themeClass, type ThemeKey } from "@/lib/themes";
 
 export type ProfileData = {
   name: string;
@@ -7,11 +8,14 @@ export type ProfileData = {
   photo_url: string | null;
   socials: Partial<Record<SocialKey, string>>;
   custom_links: CustomLink[];
+  theme?: ThemeKey;
 };
 
 export function ProfilePreview({ data }: { data: ProfileData }) {
   return (
+    <div className={`${themeClass(data.theme)} themed-surface rounded-3xl p-4`}>
     <div className="w-full max-w-sm mx-auto glass rounded-3xl p-7 text-center">
+
       <div className="w-28 h-28 mx-auto rounded-full overflow-hidden ring-4 ring-primary/30 bg-muted grid place-items-center">
         {data.photo_url ? (
           <img src={data.photo_url} alt={data.name || "Foto"} className="w-full h-full object-cover" />
