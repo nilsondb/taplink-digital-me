@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SOCIALS, type CustomLink, type SocialKey } from "@/lib/social";
+import { themeClass } from "@/lib/themes";
+
 
 export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
