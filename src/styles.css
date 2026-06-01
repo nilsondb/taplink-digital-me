@@ -104,6 +104,81 @@
   .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 25px 70px -20px oklch(0.65 0.22 320 / 0.6); }
 }
 
+/* ===== Profile themes ===== */
+.theme-neon-dark,
+.theme-sunset-luxury,
+.theme-emerald-elite {
+  transition: background 600ms ease, color 400ms ease;
+}
+.theme-neon-dark *,
+.theme-sunset-luxury *,
+.theme-emerald-elite * {
+  transition: background-color 400ms ease, background-image 400ms ease,
+              border-color 400ms ease, box-shadow 400ms ease, color 400ms ease;
+}
+
+.theme-neon-dark {
+  --background: oklch(0.17 0.04 265);
+  --foreground: oklch(0.98 0.01 250);
+  --muted-foreground: oklch(0.78 0.03 250);
+  --primary: oklch(0.7 0.2 255);
+  --primary-foreground: oklch(0.15 0.03 265);
+  --accent: oklch(0.65 0.24 300);
+  --ring: oklch(0.7 0.2 255);
+  --border: oklch(1 0 0 / 0.12);
+  --gradient-hero:
+    radial-gradient(ellipse 80% 60% at 20% 0%, oklch(0.65 0.24 300 / 0.45), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 80% 100%, oklch(0.7 0.22 255 / 0.4), transparent 60%),
+    linear-gradient(180deg, oklch(0.17 0.04 265), oklch(0.12 0.04 265));
+  --gradient-primary: linear-gradient(135deg, oklch(0.7 0.22 255), oklch(0.65 0.26 300));
+  --gradient-card: linear-gradient(145deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
+  --shadow-glow: 0 20px 60px -20px oklch(0.7 0.22 255 / 0.55);
+  --shadow-soft: 0 10px 40px -10px oklch(0 0 0 / 0.55);
+}
+
+.theme-sunset-luxury {
+  --background: oklch(0.16 0.03 25);
+  --foreground: oklch(0.98 0.01 60);
+  --muted-foreground: oklch(0.82 0.04 40);
+  --primary: oklch(0.78 0.18 50);
+  --primary-foreground: oklch(0.15 0.03 25);
+  --accent: oklch(0.7 0.22 0);
+  --ring: oklch(0.78 0.18 50);
+  --border: oklch(1 0 0 / 0.12);
+  --gradient-hero:
+    radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.7 0.24 25 / 0.5), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 80% 100%, oklch(0.78 0.2 50 / 0.4), transparent 60%),
+    linear-gradient(180deg, oklch(0.16 0.04 25), oklch(0.1 0.03 20));
+  --gradient-primary: linear-gradient(135deg, oklch(0.78 0.2 50), oklch(0.65 0.25 0));
+  --gradient-card: linear-gradient(145deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
+  --shadow-glow: 0 20px 60px -20px oklch(0.7 0.24 25 / 0.55);
+  --shadow-soft: 0 10px 40px -10px oklch(0 0 0 / 0.55);
+}
+
+.theme-emerald-elite {
+  --background: oklch(0.17 0.04 165);
+  --foreground: oklch(0.98 0.02 160);
+  --muted-foreground: oklch(0.82 0.04 160);
+  --primary: oklch(0.7 0.16 160);
+  --primary-foreground: oklch(0.14 0.04 165);
+  --accent: oklch(0.85 0.15 150);
+  --ring: oklch(0.7 0.16 160);
+  --border: oklch(1 0 0 / 0.1);
+  --gradient-hero:
+    radial-gradient(ellipse 80% 60% at 30% 0%, oklch(0.7 0.18 160 / 0.4), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 80% 100%, oklch(0.85 0.15 150 / 0.3), transparent 60%),
+    linear-gradient(180deg, oklch(0.17 0.04 165), oklch(0.11 0.03 165));
+  --gradient-primary: linear-gradient(135deg, oklch(0.6 0.16 160), oklch(0.78 0.18 150));
+  --gradient-card: linear-gradient(145deg, oklch(1 0 0 / 0.07), oklch(1 0 0 / 0.02));
+  --shadow-glow: 0 20px 60px -20px oklch(0.6 0.18 160 / 0.5);
+  --shadow-soft: 0 10px 40px -10px oklch(0 0 0 / 0.5);
+}
+
+.themed-surface {
+  background: var(--gradient-hero);
+  color: var(--foreground);
+}
+
 @font-face {
   font-family: "Space Grotesk";
   font-display: swap;
