@@ -1,0 +1,2 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS theme TEXT NOT NULL DEFAULT 'neon-dark';
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_theme_check CHECK (theme IN ('neon-dark','sunset-luxury','emerald-elite'));
