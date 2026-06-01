@@ -10,7 +10,7 @@ export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id,slug,name,bio,photo_url,instagram,facebook,tiktok,youtube,linkedin,whatsapp,telegram,twitter,website,custom_links")
+      .select("id,slug,name,bio,photo_url,theme,instagram,facebook,tiktok,youtube,linkedin,whatsapp,telegram,twitter,website,custom_links")
       .ilike("slug", params.slug)
       .maybeSingle();
     if (error) throw error;
