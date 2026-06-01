@@ -92,6 +92,7 @@ export type Database = {
           photo_url: string | null
           slug: string
           telegram: string | null
+          theme: string
           tiktok: string | null
           twitter: string | null
           updated_at: string
@@ -114,6 +115,7 @@ export type Database = {
           photo_url?: string | null
           slug: string
           telegram?: string | null
+          theme?: string
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string
@@ -136,6 +138,7 @@ export type Database = {
           photo_url?: string | null
           slug?: string
           telegram?: string | null
+          theme?: string
           tiktok?: string | null
           twitter?: string | null
           updated_at?: string

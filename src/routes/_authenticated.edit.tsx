@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { SOCIALS, sanitizeSlug, SLUG_REGEX, RESERVED_SLUGS, type CustomLink, type SocialKey } from "@/lib/social";
 import { ProfilePreview, type ProfileData } from "@/components/ProfilePreview";
+import { THEMES, type ThemeKey } from "@/lib/themes";
+
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
@@ -27,6 +29,8 @@ function EditPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [socials, setSocials] = useState<Partial<Record<SocialKey, string>>>({});
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
+  const [theme, setTheme] = useState<ThemeKey>("neon-dark");
+
 
   useEffect(() => {
     if (!user) return;
@@ -41,6 +45,8 @@ function EditPage() {
           telegram: data.telegram || "", twitter: data.twitter || "", website: data.website || "",
         });
         setCustomLinks(((data.custom_links as unknown) as CustomLink[]) || []);
+        setTheme(((data as { theme?: ThemeKey }).theme as ThemeKey) || "neon-dark");
+
       }
       setLoading(false);
     });
@@ -82,6 +88,8 @@ function EditPage() {
         telegram: socials.telegram?.trim() || null, twitter: socials.twitter?.trim() || null,
         website: socials.website?.trim() || null,
         custom_links: cleanedLinks,
+        theme,
+
       };
 
       if (existing) {
@@ -104,7 +112,7 @@ function EditPage() {
 
   if (loading) return <div className="grid place-items-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
 
-  const data: ProfileData = { name, bio, photo_url: photoPreview, socials, custom_links: customLinks };
+  const data: ProfileData = { name, bio, photo_url: photoPreview, socials, custom_links: customLinks, theme };
 
   return (
     <main className="px-6 pb-24 max-w-6xl mx-auto grid lg:grid-cols-[1fr_380px] gap-8">
@@ -149,6 +157,32 @@ function EditPage() {
             ))}
           </div>
         </Section>
+
+        <Section title="Aparência do perfil" subtitle="Escolha o tema visual da sua página pública">
+          <div className="grid sm:grid-cols-3 gap-3">
+            {THEMES.map((t) => {
+              const active = theme === t.key;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setTheme(t.key)}
+                  className={`theme-${t.key} themed-surface text-left rounded-2xl p-4 border-2 transition focus:outline-none ${active ? "border-primary shadow-[0_0_0_4px_oklch(var(--ring)/0.25)]" : "border-transparent hover:scale-[1.02]"}`}
+                  aria-pressed={active}
+                >
+                  <div className="flex gap-1.5 mb-3">
+                    {t.swatch.map((c, i) => (
+                      <span key={i} className="w-6 h-6 rounded-full ring-1 ring-white/20" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <div className="font-display font-bold text-sm text-foreground">{t.name}</div>
+                  <div className="text-[11px] text-muted-foreground mt-1 leading-snug">{t.description}</div>
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+
 
         <Section title="Links personalizados" subtitle="Botões extras para qualquer URL">
           <div className="space-y-3">
