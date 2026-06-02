@@ -54,7 +54,14 @@ function EditPage() {
         });
         setCustomLinks(((data.custom_links as unknown) as CustomLink[]) || []);
         setTheme(((data as { theme?: ThemeKey }).theme as ThemeKey) || "neon-dark");
-
+        const d = data as Record<string, unknown>;
+        setShowEvent(Boolean(d.show_event));
+        setEventTitle((d.event_title as string) || "");
+        setEventDate((d.event_date as string) || "");
+        setEventTime(((d.event_time as string) || "").slice(0, 5));
+        setEventLocation((d.event_location as string) || "");
+        setEventTicketUrl((d.event_ticket_url as string) || "");
+        setEventDescription((d.event_description as string) || "");
       }
       setLoading(false);
     });
