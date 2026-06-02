@@ -124,9 +124,14 @@ function AdminPage() {
           <h1 className="font-display font-bold text-3xl">Administração</h1>
           <p className="text-sm text-muted-foreground">Gestão completa da plataforma TapLink NFC</p>
         </div>
-        <button onClick={exportCsv} className="glass rounded-xl px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 hover:bg-white/5">
-          <Download className="w-4 h-4" /> Exportar CSV
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/admin/saas-center" className="glass rounded-xl px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 hover:bg-white/5">
+            <ExternalLink className="w-4 h-4" /> SaaS Center
+          </Link>
+          <button onClick={exportCsv} className="glass rounded-xl px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2 hover:bg-white/5">
+            <Download className="w-4 h-4" /> Exportar CSV
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
