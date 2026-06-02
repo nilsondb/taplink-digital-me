@@ -93,6 +93,19 @@ function PublicProfile() {
         <h1 className="mt-5 font-display text-2xl font-bold">{profile.name}</h1>
         {profile.bio && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">{profile.bio}</p>}
 
+        <EventCard
+          event={{
+            show_event: (profile as { show_event?: boolean }).show_event,
+            event_title: (profile as { event_title?: string }).event_title,
+            event_date: (profile as { event_date?: string }).event_date,
+            event_time: (profile as { event_time?: string }).event_time,
+            event_location: (profile as { event_location?: string }).event_location,
+            event_ticket_url: (profile as { event_ticket_url?: string }).event_ticket_url,
+            event_description: (profile as { event_description?: string }).event_description,
+          }}
+          onTicketClick={() => trackClick("custom", "event_ticket")}
+        />
+
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {SOCIALS.filter((s) => socials[s.key]?.trim()).map((s) => {
             const Icon = s.icon;
