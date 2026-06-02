@@ -1,6 +1,7 @@
 import { User } from "lucide-react";
 import { SOCIALS, type CustomLink, type SocialKey } from "@/lib/social";
 import { themeClass, type ThemeKey } from "@/lib/themes";
+import { EventCard, type EventData } from "@/components/EventCard";
 
 export type ProfileData = {
   name: string;
@@ -9,6 +10,7 @@ export type ProfileData = {
   socials: Partial<Record<SocialKey, string>>;
   custom_links: CustomLink[];
   theme?: ThemeKey;
+  event?: EventData;
 };
 
 export function ProfilePreview({ data }: { data: ProfileData }) {
@@ -25,6 +27,8 @@ export function ProfilePreview({ data }: { data: ProfileData }) {
       </div>
       <h2 className="mt-5 font-display text-2xl font-bold">{data.name || "Seu nome"}</h2>
       {data.bio && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">{data.bio}</p>}
+
+      {data.event && <EventCard event={data.event} />}
 
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         {SOCIALS.filter((s) => data.socials[s.key]?.trim()).map((s) => {
