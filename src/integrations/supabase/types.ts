@@ -84,12 +84,19 @@ export type Database = {
           clicks_count: number
           created_at: string
           custom_links: Json
+          event_date: string | null
+          event_description: string | null
+          event_location: string | null
+          event_ticket_url: string | null
+          event_time: string | null
+          event_title: string | null
           facebook: string | null
           id: string
           instagram: string | null
           linkedin: string | null
           name: string
           photo_url: string | null
+          show_event: boolean
           slug: string
           status: string
           telegram: string | null
@@ -108,12 +115,19 @@ export type Database = {
           clicks_count?: number
           created_at?: string
           custom_links?: Json
+          event_date?: string | null
+          event_description?: string | null
+          event_location?: string | null
+          event_ticket_url?: string | null
+          event_time?: string | null
+          event_title?: string | null
           facebook?: string | null
           id?: string
           instagram?: string | null
           linkedin?: string | null
           name: string
           photo_url?: string | null
+          show_event?: boolean
           slug: string
           status?: string
           telegram?: string | null
@@ -132,12 +146,19 @@ export type Database = {
           clicks_count?: number
           created_at?: string
           custom_links?: Json
+          event_date?: string | null
+          event_description?: string | null
+          event_location?: string | null
+          event_ticket_url?: string | null
+          event_time?: string | null
+          event_title?: string | null
           facebook?: string | null
           id?: string
           instagram?: string | null
           linkedin?: string | null
           name?: string
           photo_url?: string | null
+          show_event?: boolean
           slug?: string
           status?: string
           telegram?: string | null

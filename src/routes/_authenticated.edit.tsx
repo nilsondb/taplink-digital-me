@@ -31,6 +31,14 @@ function EditPage() {
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [theme, setTheme] = useState<ThemeKey>("neon-dark");
 
+  const [showEvent, setShowEvent] = useState(false);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
+  const [eventTicketUrl, setEventTicketUrl] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+
 
   useEffect(() => {
     if (!user) return;
@@ -46,7 +54,14 @@ function EditPage() {
         });
         setCustomLinks(((data.custom_links as unknown) as CustomLink[]) || []);
         setTheme(((data as { theme?: ThemeKey }).theme as ThemeKey) || "neon-dark");
-
+        const d = data as Record<string, unknown>;
+        setShowEvent(Boolean(d.show_event));
+        setEventTitle((d.event_title as string) || "");
+        setEventDate((d.event_date as string) || "");
+        setEventTime(((d.event_time as string) || "").slice(0, 5));
+        setEventLocation((d.event_location as string) || "");
+        setEventTicketUrl((d.event_ticket_url as string) || "");
+        setEventDescription((d.event_description as string) || "");
       }
       setLoading(false);
     });
@@ -89,7 +104,13 @@ function EditPage() {
         website: socials.website?.trim() || null,
         custom_links: cleanedLinks,
         theme,
-
+        show_event: showEvent,
+        event_title: eventTitle.trim() || null,
+        event_date: eventDate || null,
+        event_time: eventTime || null,
+        event_location: eventLocation.trim() || null,
+        event_ticket_url: eventTicketUrl.trim() || null,
+        event_description: eventDescription.trim() || null,
       };
 
       if (existing) {
@@ -112,7 +133,18 @@ function EditPage() {
 
   if (loading) return <div className="grid place-items-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
 
-  const data: ProfileData = { name, bio, photo_url: photoPreview, socials, custom_links: customLinks, theme };
+  const data: ProfileData = {
+    name, bio, photo_url: photoPreview, socials, custom_links: customLinks, theme,
+    event: {
+      show_event: showEvent,
+      event_title: eventTitle,
+      event_date: eventDate,
+      event_time: eventTime,
+      event_location: eventLocation,
+      event_ticket_url: eventTicketUrl,
+      event_description: eventDescription,
+    },
+  };
 
   return (
     <main className="px-6 pb-24 max-w-6xl mx-auto grid lg:grid-cols-[1fr_380px] gap-8">
@@ -181,6 +213,34 @@ function EditPage() {
               );
             })}
           </div>
+        </Section>
+
+        <Section title="Agenda" subtitle="Destaque um evento no topo da sua página">
+          <label className="flex items-center justify-between gap-3 glass rounded-2xl p-3">
+            <div>
+              <div className="text-sm font-medium">Exibir card de evento</div>
+              <div className="text-[11px] text-muted-foreground">Aparece logo abaixo da sua bio</div>
+            </div>
+            <input type="checkbox" checked={showEvent} onChange={(e) => setShowEvent(e.target.checked)}
+              className="w-5 h-5 accent-primary" />
+          </label>
+
+          <Field label="Nome do evento" value={eventTitle} onChange={setEventTitle} placeholder="Show de lançamento" />
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">Data</div>
+              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)}
+                className="w-full rounded-xl bg-input/50 border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40" />
+            </label>
+            <label className="block">
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">Hora</div>
+              <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)}
+                className="w-full rounded-xl bg-input/50 border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40" />
+            </label>
+          </div>
+          <Field label="Local" value={eventLocation} onChange={setEventLocation} placeholder="Casa de shows, cidade" />
+          <Field label="Link para ingressos" value={eventTicketUrl} onChange={setEventTicketUrl} placeholder="https://..." />
+          <Field label="Descrição" value={eventDescription} onChange={setEventDescription} placeholder="Detalhes do evento" multiline />
         </Section>
 
 
