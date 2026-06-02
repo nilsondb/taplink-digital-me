@@ -4,13 +4,14 @@ import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SOCIALS, type CustomLink, type SocialKey } from "@/lib/social";
 import { themeClass } from "@/lib/themes";
+import { EventCard } from "@/components/EventCard";
 
 
 export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id,slug,name,bio,photo_url,theme,instagram,facebook,tiktok,youtube,linkedin,whatsapp,telegram,twitter,website,custom_links")
+      .select("id,slug,name,bio,photo_url,theme,instagram,facebook,tiktok,youtube,linkedin,whatsapp,telegram,twitter,website,custom_links,show_event,event_title,event_date,event_time,event_location,event_ticket_url,event_description")
       .ilike("slug", params.slug)
       .maybeSingle();
     if (error) throw error;
