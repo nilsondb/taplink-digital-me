@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_metrics: {
+        Row: {
+          active_users: number
+          annual_revenue: number
+          cancellations_month: number
+          custom_metrics: Json
+          id: string
+          last_update: string
+          monthly_revenue: number
+          new_users_month: number
+          new_users_today: number
+          premium_users: number
+          total_subscriptions: number
+          total_users: number
+        }
+        Insert: {
+          active_users?: number
+          annual_revenue?: number
+          cancellations_month?: number
+          custom_metrics?: Json
+          id?: string
+          last_update?: string
+          monthly_revenue?: number
+          new_users_month?: number
+          new_users_today?: number
+          premium_users?: number
+          total_subscriptions?: number
+          total_users?: number
+        }
+        Update: {
+          active_users?: number
+          annual_revenue?: number
+          cancellations_month?: number
+          custom_metrics?: Json
+          id?: string
+          last_update?: string
+          monthly_revenue?: number
+          new_users_month?: number
+          new_users_today?: number
+          premium_users?: number
+          total_subscriptions?: number
+          total_users?: number
+        }
+        Relationships: []
+      }
+      integration_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          integration_token: string | null
+          last_sync: string | null
+          saas_center_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          integration_token?: string | null
+          last_sync?: string | null
+          saas_center_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          integration_token?: string | null
+          last_sync?: string | null
+          saas_center_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       link_clicks: {
         Row: {
           clicked_at: string
@@ -174,6 +249,30 @@ export type Database = {
         }
         Relationships: []
       }
+      saas_center_sync_log: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          payload: Json | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          payload?: Json | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          payload?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -237,6 +336,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      recompute_app_metrics: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
