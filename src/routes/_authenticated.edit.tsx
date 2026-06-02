@@ -31,6 +31,14 @@ function EditPage() {
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [theme, setTheme] = useState<ThemeKey>("neon-dark");
 
+  const [showEvent, setShowEvent] = useState(false);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
+  const [eventTicketUrl, setEventTicketUrl] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+
 
   useEffect(() => {
     if (!user) return;
