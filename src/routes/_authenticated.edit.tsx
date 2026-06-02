@@ -104,7 +104,13 @@ function EditPage() {
         website: socials.website?.trim() || null,
         custom_links: cleanedLinks,
         theme,
-
+        show_event: showEvent,
+        event_title: eventTitle.trim() || null,
+        event_date: eventDate || null,
+        event_time: eventTime || null,
+        event_location: eventLocation.trim() || null,
+        event_ticket_url: eventTicketUrl.trim() || null,
+        event_description: eventDescription.trim() || null,
       };
 
       if (existing) {
