@@ -215,8 +215,35 @@ function EditPage() {
           </div>
         </Section>
 
+        <Section title="Agenda" subtitle="Destaque um evento no topo da sua página">
+          <label className="flex items-center justify-between gap-3 glass rounded-2xl p-3">
+            <div>
+              <div className="text-sm font-medium">Exibir card de evento</div>
+              <div className="text-[11px] text-muted-foreground">Aparece logo abaixo da sua bio</div>
+            </div>
+            <input type="checkbox" checked={showEvent} onChange={(e) => setShowEvent(e.target.checked)}
+              className="w-5 h-5 accent-primary" />
+          </label>
 
-        <Section title="Links personalizados" subtitle="Botões extras para qualquer URL">
+          <Field label="Nome do evento" value={eventTitle} onChange={setEventTitle} placeholder="Show de lançamento" />
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">Data</div>
+              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)}
+                className="w-full rounded-xl bg-input/50 border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40" />
+            </label>
+            <label className="block">
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">Hora</div>
+              <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)}
+                className="w-full rounded-xl bg-input/50 border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40" />
+            </label>
+          </div>
+          <Field label="Local" value={eventLocation} onChange={setEventLocation} placeholder="Casa de shows, cidade" />
+          <Field label="Link para ingressos" value={eventTicketUrl} onChange={setEventTicketUrl} placeholder="https://..." />
+          <Field label="Descrição" value={eventDescription} onChange={setEventDescription} placeholder="Detalhes do evento" multiline />
+        </Section>
+
+
           <div className="space-y-3">
             {customLinks.map((l, i) => (
               <div key={i} className="glass rounded-2xl p-3 grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
