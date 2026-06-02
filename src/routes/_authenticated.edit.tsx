@@ -244,6 +244,7 @@ function EditPage() {
         </Section>
 
 
+        <Section title="Links personalizados" subtitle="Botões extras para qualquer URL">
           <div className="space-y-3">
             {customLinks.map((l, i) => (
               <div key={i} className="glass rounded-2xl p-3 grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
