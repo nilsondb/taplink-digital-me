@@ -16,6 +16,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiSaasCenterRouteImport } from './routes/api/saas-center'
 import { Route as AuthenticatedEditRouteImport } from './routes/_authenticated.edit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
@@ -56,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSaasCenterRoute = ApiSaasCenterRouteImport.update({
+  id: '/api/saas-center',
+  path: '/api/saas-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedEditRoute = AuthenticatedEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/edit': typeof AuthenticatedEditRoute
+  '/api/saas-center': typeof ApiSaasCenterRoute
   '/admin/saas-center': typeof AuthenticatedAdminSaasCenterRoute
   '/api/public/saas-center': typeof ApiPublicSaasCenterRoute
 }
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/edit': typeof AuthenticatedEditRoute
+  '/api/saas-center': typeof ApiSaasCenterRoute
   '/admin/saas-center': typeof AuthenticatedAdminSaasCenterRoute
   '/api/public/saas-center': typeof ApiPublicSaasCenterRoute
 }
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/edit': typeof AuthenticatedEditRoute
+  '/api/saas-center': typeof ApiSaasCenterRoute
   '/_authenticated/admin/saas-center': typeof AuthenticatedAdminSaasCenterRoute
   '/api/public/saas-center': typeof ApiPublicSaasCenterRoute
 }
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/edit'
+    | '/api/saas-center'
     | '/admin/saas-center'
     | '/api/public/saas-center'
   fileRoutesByTo: FileRoutesByTo
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/edit'
+    | '/api/saas-center'
     | '/admin/saas-center'
     | '/api/public/saas-center'
   id:
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/edit'
+    | '/api/saas-center'
     | '/_authenticated/admin/saas-center'
     | '/api/public/saas-center'
   fileRoutesById: FileRoutesById
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  ApiSaasCenterRoute: typeof ApiSaasCenterRoute
   ApiPublicSaasCenterRoute: typeof ApiPublicSaasCenterRoute
 }
 
@@ -227,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/saas-center': {
+      id: '/api/saas-center'
+      path: '/api/saas-center'
+      fullPath: '/api/saas-center'
+      preLoaderRoute: typeof ApiSaasCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/edit': {
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  ApiSaasCenterRoute: ApiSaasCenterRoute,
   ApiPublicSaasCenterRoute: ApiPublicSaasCenterRoute,
 }
 export const routeTree = rootRouteImport
