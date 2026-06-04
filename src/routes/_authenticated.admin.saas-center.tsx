@@ -206,6 +206,25 @@ function SaasCenterPage() {
         </div>
         <p className="text-xs text-muted-foreground">Método: <code>GET</code> · Header: <code>Authorization: Bearer &lt;token&gt;</code></p>
 
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-xs font-medium">Token padrão sugerido</div>
+            <button
+              onClick={() => { navigator.clipboard.writeText("SC_LINKTAP_2026"); toast.success("Token copiado"); }}
+              className="text-xs inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-background"
+            >
+              <Copy className="w-3 h-3" /> Copiar
+            </button>
+          </div>
+          <code className="block font-mono text-xs break-all">SC_LINKTAP_2026</code>
+          <div className="text-xs text-muted-foreground">Exemplo de uso:</div>
+          <pre className="font-mono text-[11px] bg-background/60 rounded p-2 overflow-auto">curl -H "Authorization: Bearer SC_LINKTAP_2026" \
+  {endpointUrl}</pre>
+          <p className="text-[11px] text-muted-foreground">
+            Tokens válidos retornam <code>HTTP 200</code> com JSON de métricas. Tokens inválidos retornam <code>HTTP 401</code>.
+          </p>
+        </div>
+
         {testResult && (
           <div className={`rounded-lg border p-3 text-xs font-mono whitespace-pre-wrap break-all ${testResult.ok ? "border-emerald-500/40 bg-emerald-500/5" : "border-destructive/40 bg-destructive/5"}`}>
             <div className="mb-1 font-sans font-medium">HTTP {testResult.status}</div>
