@@ -20,6 +20,7 @@ import { Route as ApiSaasCenterRouteImport } from './routes/api/saas-center'
 import { Route as AuthenticatedEditRouteImport } from './routes/_authenticated.edit'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as ApiPublicSaasCenterRouteImport } from './routes/api/public/saas-center'
 import { Route as AuthenticatedAdminSaasCenterRouteImport } from './routes/_authenticated.admin.saas-center'
 
@@ -77,6 +78,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const ApiPublicSaasCenterRoute = ApiPublicSaasCenterRouteImport.update({
   id: '/api/public/saas-center',
   path: '/api/public/saas-center',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/api/saas-center': typeof ApiSaasCenterRoute
   '/admin/saas-center': typeof AuthenticatedAdminSaasCenterRoute
   '/api/public/saas-center': typeof ApiPublicSaasCenterRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,12 +117,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/edit': typeof AuthenticatedEditRoute
   '/api/saas-center': typeof ApiSaasCenterRoute
   '/admin/saas-center': typeof AuthenticatedAdminSaasCenterRoute
   '/api/public/saas-center': typeof ApiPublicSaasCenterRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -132,6 +139,7 @@ export interface FileRoutesById {
   '/api/saas-center': typeof ApiSaasCenterRoute
   '/_authenticated/admin/saas-center': typeof AuthenticatedAdminSaasCenterRoute
   '/api/public/saas-center': typeof ApiPublicSaasCenterRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -148,6 +156,7 @@ export interface FileRouteTypes {
     | '/api/saas-center'
     | '/admin/saas-center'
     | '/api/public/saas-center'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -156,12 +165,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
-    | '/admin'
     | '/dashboard'
     | '/edit'
     | '/api/saas-center'
     | '/admin/saas-center'
     | '/api/public/saas-center'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/api/saas-center'
     | '/_authenticated/admin/saas-center'
     | '/api/public/saas-center'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/saas-center': {
       id: '/api/public/saas-center'
       path: '/api/public/saas-center'
@@ -289,10 +306,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSaasCenterRoute: typeof AuthenticatedAdminSaasCenterRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSaasCenterRoute: AuthenticatedAdminSaasCenterRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
