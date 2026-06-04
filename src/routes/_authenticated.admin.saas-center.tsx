@@ -39,6 +39,7 @@ function SaasCenterPage() {
   const [testResult, setTestResult] = useState<{ ok: boolean; status: number; body: string } | null>(null);
 
   const endpointUrl = typeof window !== "undefined" ? `${window.location.origin}/api/public/saas-center` : "";
+  const officialEndpointUrl = typeof window !== "undefined" ? `${window.location.origin}/api/saas-center` : "";
 
   useEffect(() => {
     if (!checking && !isAdmin) {
