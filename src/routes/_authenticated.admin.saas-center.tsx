@@ -214,6 +214,10 @@ function SaasCenterPage() {
         )}
       </section>
 
+      {/* Official Public Endpoint (SaaS Center Standard) */}
+      <OfficialEndpointCard url={officialEndpointUrl} />
+
+
       {/* Metrics preview */}
       <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
         <h2 className="font-semibold">Métricas enviadas</h2>
