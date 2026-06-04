@@ -246,3 +246,64 @@ function SaasCenterPage() {
     </main>
   );
 }
+
+function OfficialEndpointCard({ url }: { url: string }) {
+  const [testing, setTesting] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; status: number; body: string } | null>(null);
+
+  async function copy() {
+    await navigator.clipboard.writeText(url);
+    toast.success("Endpoint copiado");
+  }
+
+  async function test() {
+    setTesting(true);
+    setResult(null);
+    try {
+      const res = await fetch(url);
+      const text = await res.text();
+      let valid = true;
+      try { JSON.parse(text); } catch { valid = false; }
+      setResult({ ok: res.ok && valid, status: res.status, body: text });
+      if (res.ok && valid) toast.success("JSON válido");
+      else toast.error("Resposta inválida");
+    } catch (e) {
+      setResult({ ok: false, status: 0, body: e instanceof Error ? e.message : "Erro" });
+      toast.error("Erro ao testar");
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-primary/40 bg-card p-6 space-y-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <h2 className="font-semibold">Endpoint Oficial — Padrão SaaS Center</h2>
+          <p className="text-xs text-muted-foreground">Público, sem autenticação. Retorna JSON padronizado.</p>
+        </div>
+        <span className="px-2 py-1 rounded-full text-[10px] uppercase tracking-wide bg-primary/15 text-primary font-medium">Oficial</span>
+      </div>
+      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40 font-mono text-xs sm:text-sm break-all">
+        <span className="flex-1">{url}</span>
+        <button onClick={copy} className="p-1.5 rounded hover:bg-background"><Copy className="w-4 h-4" /></button>
+      </div>
+      <p className="text-xs text-muted-foreground">Método: <code>GET</code> · <code>Content-Type: application/json</code></p>
+      <div className="flex flex-wrap gap-2">
+        <button onClick={copy} className="px-3 py-1.5 rounded-lg border border-border text-xs font-medium inline-flex items-center gap-2">
+          <Copy className="w-3.5 h-3.5" /> Copiar Endpoint
+        </button>
+        <button onClick={test} disabled={testing} className="px-3 py-1.5 rounded-lg btn-primary text-xs font-medium inline-flex items-center gap-2 disabled:opacity-50">
+          {testing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />} Testar Endpoint
+        </button>
+      </div>
+      {result && (
+        <div className={`rounded-lg border p-3 text-xs font-mono whitespace-pre-wrap break-all ${result.ok ? "border-emerald-500/40 bg-emerald-500/5" : "border-destructive/40 bg-destructive/5"}`}>
+          <div className="mb-1 font-sans font-medium">HTTP {result.status}</div>
+          {(() => { try { return JSON.stringify(JSON.parse(result.body), null, 2); } catch { return result.body; } })()}
+        </div>
+      )}
+    </section>
+  );
+}
+
