@@ -1,24 +1,21 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Upload, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { apiFetch } from "@/lib/api-client";
+import type { LocalProfile } from "@/lib/local-types";
 import { SOCIALS, sanitizeSlug, SLUG_REGEX, RESERVED_SLUGS, type CustomLink, type SocialKey } from "@/lib/social";
 import { ProfilePreview, type ProfileData } from "@/components/ProfilePreview";
 import { THEMES, type ThemeKey } from "@/lib/themes";
-
-import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/edit")({
-  head: () => ({ meta: [{ title: "Editar perfil — TapLink NFC" }] }),
+  head: () => ({ meta: [{ title: "Editar perfil — Authera Link Card" }] }),
   component: EditPage,
 });
 
 function EditPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [existing, setExisting] = useState<Tables<"profiles"> | null>(null);
+  const [existing, setExisting] = useState<LocalProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -27,6 +24,7 @@ function EditPage() {
   const [bio, setBio] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
   const [socials, setSocials] = useState<Partial<Record<SocialKey, string>>>({});
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [theme, setTheme] = useState<ThemeKey>("neon-dark");
@@ -39,36 +37,37 @@ function EditPage() {
   const [eventTicketUrl, setEventTicketUrl] = useState("");
   const [eventDescription, setEventDescription] = useState("");
 
-
   useEffect(() => {
-    if (!user) return;
-    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (data) {
-        setExisting(data);
-        setSlug(data.slug); setName(data.name); setBio(data.bio || "");
-        setPhotoPreview(data.photo_url);
+    apiFetch<{ profile: LocalProfile | null }>("/api/profile")
+      .then(({ profile }) => {
+        if (!profile) return;
+        setExisting(profile);
+        setSlug(profile.slug);
+        setName(profile.name);
+        setBio(profile.bio || "");
+        setPhotoPreview(profile.photo_url);
         setSocials({
-          instagram: data.instagram || "", facebook: data.facebook || "", tiktok: data.tiktok || "",
-          youtube: data.youtube || "", linkedin: data.linkedin || "", whatsapp: data.whatsapp || "",
-          telegram: data.telegram || "", twitter: data.twitter || "", website: data.website || "",
+          instagram: profile.instagram || "", facebook: profile.facebook || "", tiktok: profile.tiktok || "",
+          youtube: profile.youtube || "", linkedin: profile.linkedin || "", whatsapp: profile.whatsapp || "",
+          telegram: profile.telegram || "", twitter: profile.twitter || "", website: profile.website || "",
         });
-        setCustomLinks(((data.custom_links as unknown) as CustomLink[]) || []);
-        setTheme(((data as { theme?: ThemeKey }).theme as ThemeKey) || "neon-dark");
-        const d = data as Record<string, unknown>;
-        setShowEvent(Boolean(d.show_event));
-        setEventTitle((d.event_title as string) || "");
-        setEventDate((d.event_date as string) || "");
-        setEventTime(((d.event_time as string) || "").slice(0, 5));
-        setEventLocation((d.event_location as string) || "");
-        setEventTicketUrl((d.event_ticket_url as string) || "");
-        setEventDescription((d.event_description as string) || "");
-      }
-      setLoading(false);
-    });
-  }, [user]);
+        setCustomLinks((profile.custom_links as CustomLink[]) || []);
+        setTheme((profile.theme as ThemeKey) || "neon-dark");
+        setShowEvent(Boolean(profile.show_event));
+        setEventTitle(profile.event_title || "");
+        setEventDate(profile.event_date || "");
+        setEventTime((profile.event_time || "").slice(0, 5));
+        setEventLocation(profile.event_location || "");
+        setEventTicketUrl(profile.event_ticket_url || "");
+        setEventDescription(profile.event_description || "");
+      })
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Erro ao carregar perfil"))
+      .finally(() => setLoading(false));
+  }, []);
 
   function handlePhoto(file: File | null) {
     setPhotoFile(file);
+    setRemovePhoto(false);
     if (!file) { setPhotoPreview(existing?.photo_url ?? null); return; }
     const reader = new FileReader();
     reader.onload = () => setPhotoPreview(reader.result as string);
@@ -76,7 +75,6 @@ function EditPage() {
   }
 
   async function save() {
-    if (!user) return;
     if (!name.trim()) { toast.error("Adicione seu nome"); return; }
     const cleanSlug = sanitizeSlug(slug);
     if (!SLUG_REGEX.test(cleanSlug)) { toast.error("Slug: 3-32 caracteres (letras, números, - ou _)"); return; }
@@ -84,23 +82,19 @@ function EditPage() {
 
     setSaving(true);
     try {
-      let photoUrl = existing?.photo_url ?? null;
-      if (photoFile) {
-        const ext = photoFile.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("profile-photos").upload(path, photoFile, { cacheControl: "3600", upsert: false });
-        if (upErr) throw upErr;
-        photoUrl = supabase.storage.from("profile-photos").getPublicUrl(path).data.publicUrl;
-      }
-
       const cleanedLinks = customLinks.filter((l) => l.title.trim() && l.url.trim());
       const payload = {
-        user_id: user.id,
-        slug: cleanSlug, name: name.trim(), bio: bio.trim() || null, photo_url: photoUrl,
-        instagram: socials.instagram?.trim() || null, facebook: socials.facebook?.trim() || null,
-        tiktok: socials.tiktok?.trim() || null, youtube: socials.youtube?.trim() || null,
-        linkedin: socials.linkedin?.trim() || null, whatsapp: socials.whatsapp?.trim() || null,
-        telegram: socials.telegram?.trim() || null, twitter: socials.twitter?.trim() || null,
+        slug: cleanSlug,
+        name: name.trim(),
+        bio: bio.trim() || null,
+        instagram: socials.instagram?.trim() || null,
+        facebook: socials.facebook?.trim() || null,
+        tiktok: socials.tiktok?.trim() || null,
+        youtube: socials.youtube?.trim() || null,
+        linkedin: socials.linkedin?.trim() || null,
+        whatsapp: socials.whatsapp?.trim() || null,
+        telegram: socials.telegram?.trim() || null,
+        twitter: socials.twitter?.trim() || null,
         website: socials.website?.trim() || null,
         custom_links: cleanedLinks,
         theme,
@@ -111,21 +105,22 @@ function EditPage() {
         event_location: eventLocation.trim() || null,
         event_ticket_url: eventTicketUrl.trim() || null,
         event_description: eventDescription.trim() || null,
+        remove_photo: removePhoto,
       };
 
-      if (existing) {
-        const { error } = await supabase.from("profiles").update(payload).eq("id", existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("profiles").insert(payload);
-        if (error) throw error;
-      }
+      const form = new FormData();
+      form.set("payload", JSON.stringify(payload));
+      if (photoFile) form.set("photo", photoFile);
+
+      const result = await apiFetch<{ profile: LocalProfile }>("/api/profile", {
+        method: "PUT",
+        body: form,
+      });
+      setExisting(result.profile);
       toast.success(existing ? "Perfil atualizado!" : "Perfil publicado!");
       navigate({ to: "/dashboard" });
-    } catch (err: unknown) {
-      const e = err as { message?: string; code?: string };
-      if (e.code === "23505") toast.error("Este slug já está em uso");
-      else toast.error(e.message || "Erro ao salvar");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar");
     } finally {
       setSaving(false);
     }
@@ -153,7 +148,7 @@ function EditPage() {
           <label className="block">
             <div className="text-xs font-medium text-muted-foreground mb-1.5">Slug</div>
             <div className="flex items-stretch rounded-xl bg-input/50 border border-border overflow-hidden focus-within:ring-2 focus-within:ring-primary/40">
-              <span className="px-3 grid place-items-center text-xs text-muted-foreground bg-white/5">/{}</span>
+              <span className="px-3 grid place-items-center text-xs text-muted-foreground bg-white/5">/</span>
               <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="seu-nome"
                 className="flex-1 bg-transparent px-3 py-3 text-sm outline-none font-mono" />
             </div>
@@ -169,13 +164,14 @@ function EditPage() {
                 {photoPreview ? <img src={photoPreview} className="w-full h-full object-cover" alt="" /> : <Upload className="w-6 h-6 text-muted-foreground" />}
               </div>
               <label className="cursor-pointer px-4 py-2 rounded-xl glass text-sm hover:bg-white/5">
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => handlePhoto(e.target.files?.[0] || null)} />
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => handlePhoto(e.target.files?.[0] || null)} />
                 Escolher imagem
               </label>
               {photoPreview && (
-                <button onClick={() => { setPhotoPreview(null); setPhotoFile(null); }} className="text-xs text-muted-foreground hover:text-destructive">Remover</button>
+                <button onClick={() => { setPhotoPreview(null); setPhotoFile(null); setRemovePhoto(true); }} className="text-xs text-muted-foreground hover:text-destructive">Remover</button>
               )}
             </div>
+            <div className="text-[11px] text-muted-foreground mt-2">JPG, PNG ou WebP · máximo 5 MB.</div>
           </div>
           <Field label="Nome" value={name} onChange={setName} placeholder="Seu nome" />
           <Field label="Bio" value={bio} onChange={setBio} placeholder="Conte algo sobre você" multiline />
@@ -242,7 +238,6 @@ function EditPage() {
           <Field label="Link para ingressos" value={eventTicketUrl} onChange={setEventTicketUrl} placeholder="https://..." />
           <Field label="Descrição" value={eventDescription} onChange={setEventDescription} placeholder="Detalhes do evento" multiline />
         </Section>
-
 
         <Section title="Links personalizados" subtitle="Botões extras para qualquer URL">
           <div className="space-y-3">

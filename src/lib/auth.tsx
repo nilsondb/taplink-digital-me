@@ -1,32 +1,41 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { apiFetch } from "@/lib/api-client";
+import type { LocalUser } from "@/lib/local-types";
 
 type AuthCtx = {
-  session: Session | null;
-  user: User | null;
+  user: LocalUser | null;
   loading: boolean;
+  refresh: () => Promise<LocalUser | null>;
 };
 
-const Ctx = createContext<AuthCtx>({ session: null, user: null, loading: true });
+const Ctx = createContext<AuthCtx>({
+  user: null,
+  loading: true,
+  refresh: async () => null,
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<LocalUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s);
+  const refresh = useCallback(async () => {
+    try {
+      const data = await apiFetch<{ user: LocalUser | null }>("/api/auth/session");
+      setUser(data.user);
+      return data.user;
+    } catch {
+      setUser(null);
+      return null;
+    } finally {
       setLoading(false);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-    return () => subscription.unsubscribe();
+    }
   }, []);
 
-  return <Ctx.Provider value={{ session, user: session?.user ?? null, loading }}>{children}</Ctx.Provider>;
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  return <Ctx.Provider value={{ user, loading, refresh }}>{children}</Ctx.Provider>;
 }
 
 export const useAuth = () => useContext(Ctx);

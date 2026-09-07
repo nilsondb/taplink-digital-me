@@ -1,0 +1,38 @@
+services:
+  authera-link-card:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: authera-link-card
+    restart: unless-stopped
+    init: true
+    ports:
+      - "8085:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /app/data
+      DB_FILE: authera-link-card.db
+    volumes:
+      - /srv/nilson/data/authera-link-card:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.8.3
+    container_name: authera-link-card-tunnel
+    restart: unless-stopped
+    profiles: ["public"]
+    depends_on:
+      authera-link-card:
+        condition: service_healthy
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run

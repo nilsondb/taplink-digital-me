@@ -1,31 +1,31 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { User } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { SOCIALS, type CustomLink, type SocialKey } from "@/lib/social";
 import { themeClass } from "@/lib/themes";
 import { EventCard } from "@/components/EventCard";
+import type { LocalProfile } from "@/lib/local-types";
+import { getPublicProfileBySlug } from "@/server/profile";
 
+const getPublicProfile = createServerFn({ method: "GET" })
+  .validator((slug: string) => String(slug || "").slice(0, 64))
+  .handler(async ({ data: slug }) => getPublicProfileBySlug(slug));
 
 export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id,slug,name,bio,photo_url,theme,instagram,facebook,tiktok,youtube,linkedin,whatsapp,telegram,twitter,website,custom_links,show_event,event_title,event_date,event_time,event_location,event_ticket_url,event_description")
-      .ilike("slug", params.slug)
-      .maybeSingle();
-    if (error) throw error;
-    if (!data) throw notFound();
-    return { profile: data };
+    const profile = await getPublicProfile({ data: params.slug });
+    if (!profile) throw notFound();
+    return { profile: profile as LocalProfile };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.profile;
     return {
       meta: [
-        { title: p ? `${p.name} — TapLink NFC` : "Perfil — TapLink NFC" },
-        { name: "description", content: p?.bio || `Perfil de ${p?.name} no TapLink NFC` },
-        { property: "og:title", content: p?.name || "TapLink NFC" },
-        { property: "og:description", content: p?.bio || "Perfil digital" },
+        { title: p ? `${p.name} — Authera Link Card` : "Perfil — Authera Link Card" },
+        { name: "description", content: p?.bio || `Perfil digital de ${p?.name || "usuário"}` },
+        { property: "og:title", content: p?.name || "Authera Link Card" },
+        { property: "og:description", content: p?.bio || "Sua presença digital em um toque" },
         ...(p?.photo_url ? [{ property: "og:image", content: p.photo_url }] : []),
       ],
     };
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/$slug")({
     <div className="min-h-screen grid place-items-center p-6 text-center">
       <div>
         <h1 className="text-3xl font-bold">Perfil não encontrado</h1>
-        <p className="text-muted-foreground mt-2">Este link não existe ou foi removido.</p>
+        <p className="text-muted-foreground mt-2">Este link não existe, está inativo ou foi removido.</p>
         <Link to="/" className="btn-primary inline-block mt-6 px-6 py-3 rounded-2xl font-semibold">Voltar ao início</Link>
       </div>
     </div>
@@ -53,21 +53,31 @@ export const Route = createFileRoute("/$slug")({
 function PublicProfile() {
   const { profile } = Route.useLoaderData();
 
-  // Track view (once per session per profile)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const key = `tlview-${profile.id}`;
+    const key = `alc-view-${profile.id}`;
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
-    supabase.from("profile_views").insert({
-      profile_id: profile.id,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent.slice(0, 256),
-    }).then(() => {});
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profile_id: profile.id,
+        event: "view",
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent.slice(0, 512),
+      }),
+      keepalive: true,
+    }).catch(() => {});
   }, [profile.id]);
 
   function trackClick(type: "social" | "custom", key: string) {
-    supabase.from("link_clicks").insert({ profile_id: profile.id, link_type: type, link_key: key.slice(0, 200) }).then(() => {});
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile_id: profile.id, event: "click", link_type: type, link_key: key.slice(0, 200) }),
+      keepalive: true,
+    }).catch(() => {});
   }
 
   const socials: Partial<Record<SocialKey, string>> = {
@@ -77,12 +87,11 @@ function PublicProfile() {
     telegram: profile.telegram ?? undefined, twitter: profile.twitter ?? undefined,
     website: profile.website ?? undefined,
   };
-  const customLinks = ((profile.custom_links as unknown) as CustomLink[]) || [];
+  const customLinks = (profile.custom_links as CustomLink[]) || [];
 
   return (
-    <div className={`${themeClass((profile as { theme?: string }).theme)} themed-surface min-h-screen px-6 py-12`}>
+    <div className={`${themeClass(profile.theme)} themed-surface min-h-screen px-6 py-12`}>
       <div className="w-full max-w-md mx-auto glass rounded-3xl p-7 text-center">
-
         <div className="w-28 h-28 mx-auto rounded-full overflow-hidden ring-4 ring-primary/30 bg-muted grid place-items-center">
           {profile.photo_url ? (
             <img src={profile.photo_url} alt={profile.name} className="w-full h-full object-cover" />
@@ -95,13 +104,13 @@ function PublicProfile() {
 
         <EventCard
           event={{
-            show_event: (profile as { show_event?: boolean }).show_event,
-            event_title: (profile as { event_title?: string }).event_title,
-            event_date: (profile as { event_date?: string }).event_date,
-            event_time: (profile as { event_time?: string }).event_time,
-            event_location: (profile as { event_location?: string }).event_location,
-            event_ticket_url: (profile as { event_ticket_url?: string }).event_ticket_url,
-            event_description: (profile as { event_description?: string }).event_description,
+            show_event: profile.show_event,
+            event_title: profile.event_title || undefined,
+            event_date: profile.event_date || undefined,
+            event_time: profile.event_time || undefined,
+            event_location: profile.event_location || undefined,
+            event_ticket_url: profile.event_ticket_url || undefined,
+            event_description: profile.event_description || undefined,
           }}
           onTicketClick={() => trackClick("custom", "event_ticket")}
         />
@@ -132,7 +141,7 @@ function PublicProfile() {
 
       <div className="mt-8 text-center">
         <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
-          Criado com TapLink NFC →
+          Authera Link Card · Sua presença digital em um toque →
         </Link>
       </div>
     </div>
