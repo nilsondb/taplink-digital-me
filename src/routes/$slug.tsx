@@ -6,13 +6,11 @@ import { SOCIALS, type CustomLink, type SocialKey } from "@/lib/social";
 import { themeClass } from "@/lib/themes";
 import { EventCard } from "@/components/EventCard";
 import type { LocalProfile } from "@/lib/local-types";
+import { getPublicProfileBySlug } from "@/server/profile";
 
 const getPublicProfile = createServerFn({ method: "GET" })
   .validator((slug: string) => String(slug || "").slice(0, 64))
-  .handler(async ({ data: slug }) => {
-    const { getPublicProfileBySlug } = await import("@/server/profile");
-    return getPublicProfileBySlug(slug);
-  });
+  .handler(async ({ data: slug }) => getPublicProfileBySlug(slug));
 
 export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
