@@ -1,28 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { BarChart3, Eye, MousePointerClick, Copy, Check, ExternalLink, Pencil, Loader2, Sparkles } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
-import type { Tables } from "@/integrations/supabase/types";
+import { BarChart3, Eye, MousePointerClick, Copy, Check, ExternalLink, Pencil, Loader2, CreditCard } from "lucide-react";
+import { apiFetch } from "@/lib/api-client";
+import type { LocalProfile } from "@/lib/local-types";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — TapLink NFC" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Authera Link Card" }] }),
   component: Dashboard,
 });
 
 function Dashboard() {
-  const { user } = useAuth();
-  const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [profile, setProfile] = useState<LocalProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => { setProfile(data); setLoading(false); });
-  }, [user]);
+    apiFetch<{ profile: LocalProfile | null }>("/api/profile")
+      .then((data) => setProfile(data.profile))
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Erro ao carregar perfil"))
+      .finally(() => setLoading(false));
+  }, []);
 
   if (loading) return <div className="grid place-items-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
 
@@ -30,9 +29,9 @@ function Dashboard() {
     return (
       <main className="px-6 py-10 max-w-3xl mx-auto">
         <div className="glass rounded-3xl p-10 text-center">
-          <div className="w-14 h-14 rounded-2xl btn-primary grid place-items-center mx-auto mb-4"><Sparkles className="w-6 h-6" /></div>
-          <h1 className="font-display font-bold text-2xl">Crie seu perfil TapLink</h1>
-          <p className="text-muted-foreground mt-2">Configure seu slug, foto, bio e links em uma página.</p>
+          <div className="w-14 h-14 rounded-2xl btn-primary grid place-items-center mx-auto mb-4"><CreditCard className="w-6 h-6" /></div>
+          <h1 className="font-display font-bold text-2xl">Crie seu Authera Link Card</h1>
+          <p className="text-muted-foreground mt-2">Configure seu endereço, foto, bio e links em uma página.</p>
           <Link to="/edit" className="btn-primary inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-2xl font-semibold">
             Começar <Pencil className="w-4 h-4" />
           </Link>
@@ -45,7 +44,8 @@ function Dashboard() {
 
   function copy() {
     navigator.clipboard.writeText(url);
-    setCopied(true); toast.success("Link copiado");
+    setCopied(true);
+    toast.success("Link copiado");
     setTimeout(() => setCopied(false), 1800);
   }
 
@@ -54,7 +54,7 @@ function Dashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
           <h1 className="font-display font-bold text-3xl">Olá, {profile.name.split(" ")[0]}</h1>
-          <p className="text-sm text-muted-foreground">Visão geral do seu TapLink</p>
+          <p className="text-sm text-muted-foreground">Visão geral da sua presença digital</p>
         </div>
         <Link to="/edit" className="btn-primary rounded-xl px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2">
           <Pencil className="w-4 h-4" /> Editar perfil
@@ -81,9 +81,9 @@ function Dashboard() {
           <div className="mt-6 glass rounded-2xl p-5 flex items-start gap-4">
             <BarChart3 className="w-6 h-6 text-primary shrink-0" />
             <div className="text-sm">
-              <div className="font-semibold">Estrutura pronta para NFC</div>
+              <div className="font-semibold">Pronto para NFC</div>
               <div className="text-muted-foreground mt-1">
-                Use a URL acima para gravar em qualquer Tag NFC compatível. Toda visita registra uma estatística em tempo real.
+                Grave a URL acima em uma Tag NFC. Visitas e cliques ficam registrados no banco local do Authera Link Card.
               </div>
             </div>
           </div>
