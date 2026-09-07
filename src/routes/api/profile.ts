@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const slugRegex = /^[a-z0-9_-]{3,32}$/i;
-const reserved = new Set(["api", "admin", "login", "signup", "dashboard", "edit", "forgot-password", "reset-password", "uploads", "authera"]);
+const reserved = new Set(["api", "admin", "login", "signup", "dashboard", "edit", "forgot-password", "reset-password", "uploads"]);
 
 export const Route = createFileRoute("/api/profile")({
   server: {
