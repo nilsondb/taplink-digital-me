@@ -24,3 +24,15 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.8.3
+    container_name: authera-link-card-tunnel
+    restart: unless-stopped
+    profiles: ["public"]
+    depends_on:
+      authera-link-card:
+        condition: service_healthy
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
