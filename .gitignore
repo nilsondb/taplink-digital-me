@@ -16,11 +16,21 @@ dist-ssr
 .nitro
 *.local
 
-# Wrangler / Cloudflare
+# Segredos e dados locais
+.env
+!.env.example
+data/
+srv-data/
+*.db
+*.db-wal
+*.db-shm
+uploads/
+
+# Wrangler / Cloudflare legado
 .wrangler/
 .dev.vars
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea

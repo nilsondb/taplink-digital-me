@@ -1,84 +1,72 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { randomUUID, timingSafeEqual } from "node:crypto";
+
+function equalToken(a: string, b: string) {
+  const aa = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return aa.length === bb.length && timingSafeEqual(aa, bb);
+}
 
 export const Route = createFileRoute("/api/public/saas-center")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const jsonHeaders = {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+        const [{ db }, { getPlatformMetrics }, { json }] = await Promise.all([
+          import("@/server/db"),
+          import("@/server/profile"),
+          import("@/server/http"),
+        ]);
+
+        const settings = db.prepare("SELECT * FROM integration_settings WHERE id = 'default' LIMIT 1").get() as {
+          enabled: number;
+          integration_token: string | null;
+        } | undefined;
+        if (!settings?.enabled || !settings.integration_token) return json({ error: "Integração desativada" }, 404);
+
+        const auth = request.headers.get("authorization") || "";
+        const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+        if (!token || !equalToken(token, settings.integration_token)) return json({ error: "Token inválido" }, 401);
+
+        const metrics = getPlatformMetrics();
+        const body = {
+          app_name: "Authera Link Card",
+          status: "online",
+          total_users: metrics.totalUsers,
+          active_users: metrics.activeUsers,
+          premium_users: 0,
+          subscriptions: 0,
+          monthly_revenue: 0,
+          annual_revenue: 0,
+          new_users_today: metrics.newUsersToday,
+          new_users_month: metrics.newUsersMonth,
+          cancellations_month: 0,
+          custom_metrics: {
+            perfis: metrics.totalProfiles,
+            links_ativos: metrics.activeLinks,
+            acessos: metrics.totalViews,
+            cliques: metrics.totalClicks,
+            cartoes_nfc: 0,
+          },
+          last_update: new Date().toISOString(),
         };
 
-        try {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const tx = db.transaction(() => {
+          db.prepare("UPDATE integration_settings SET last_sync = datetime('now'), updated_at = datetime('now') WHERE id = 'default'").run();
+          db.prepare("INSERT INTO saas_center_sync_log (id, status, message) VALUES (?, 'success', ?)")
+            .run(randomUUID(), "Consulta autenticada de métricas");
+        });
+        tx();
 
-          const { data: settings } = await supabaseAdmin
-            .from("integration_settings")
-            .select("enabled, integration_token, last_sync")
-            .limit(1)
-            .maybeSingle();
-
-          if (!settings?.enabled) {
-            return new Response(
-              JSON.stringify({ error: "Integration disabled" }),
-              { status: 403, headers: jsonHeaders },
-            );
-          }
-
-          const authHeader = request.headers.get("authorization") ?? "";
-          const provided = authHeader.replace(/^Bearer\s+/i, "").trim();
-          if (!settings.integration_token || provided !== settings.integration_token) {
-            return new Response(
-              JSON.stringify({ error: "Unauthorized" }),
-              { status: 401, headers: jsonHeaders },
-            );
-          }
-
-          const { data: m } = await supabaseAdmin
-            .from("app_metrics")
-            .select("*")
-            .limit(1)
-            .maybeSingle();
-
-          await supabaseAdmin
-            .from("integration_settings")
-            .update({ last_sync: new Date().toISOString() })
-            .neq("id", "00000000-0000-0000-0000-000000000000");
-
-          const body = {
-            app_name: "TapLink NFC",
-            status: "online",
-            total_users: m?.total_users ?? 0,
-            active_users: m?.active_users ?? 0,
-            premium_users: m?.premium_users ?? 0,
-            subscriptions: m?.total_subscriptions ?? 0,
-            monthly_revenue: Number(m?.monthly_revenue ?? 0),
-            annual_revenue: Number(m?.annual_revenue ?? 0),
-            new_users_today: m?.new_users_today ?? 0,
-            new_users_month: m?.new_users_month ?? 0,
-            cancellations_month: m?.cancellations_month ?? 0,
-            custom_metrics: m?.custom_metrics ?? {},
-            last_update: m?.last_update ?? null,
-          };
-
-          return new Response(JSON.stringify(body), { status: 200, headers: jsonHeaders });
-        } catch (err) {
-          console.error("saas-center endpoint error", err);
-          return new Response(
-            JSON.stringify({ error: "Internal error" }),
-            { status: 500, headers: jsonHeaders },
-          );
-        }
+        return json(body, 200, { "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" });
       },
-      OPTIONS: async () =>
-        new Response(null, {
-          status: 204,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
-        }),
+      OPTIONS: async () => new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }),
     },
   },
 });

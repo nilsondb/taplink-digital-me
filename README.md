@@ -1,372 +1,122 @@
-# LinkTap Pro
+# Authera Link Card
 
-Crie um SaaS chamado TapLink NFC.
+**Sua presença digital em um toque.**
 
-OBJETIVO
+Authera Link Card é um cartão/perfil digital para compartilhar identidade, redes sociais, links, eventos e contatos por URL, QR Code e NFC.
 
-Permitir que qualquer pessoa crie uma página estilo Linktree para ser acessada através de URL, QR Code e futuramente Tags NFC.
+## Arquitetura JARVIS
 
-IMPORTANTE:
+Esta branch elimina a dependência do Supabase. A aplicação roda como um único serviço Docker com:
 
-Os perfis DEVEM ser salvos permanentemente no banco de dados Supabase.
+- React + TanStack Start
+- Node.js 22
+- SQLite local (`better-sqlite3`)
+- autenticação própria com senha protegida por `scrypt`
+- sessão por cookie HttpOnly
+- uploads de foto em armazenamento local persistente
+- painel administrativo
+- estatísticas de visualizações e cliques
+- endpoints para integração com SaaS Center
 
-NÃO utilizar Local Storage para armazenar os perfis.
+### Persistência
 
-Todos os perfis devem permanecer disponíveis após atualização da página ou publicação do projeto.
+No JARVIS, o `docker-compose.yml` monta:
 
-==================================================
-
-TECNOLOGIAS
-
-==================================================
-
-- React
-
-- TypeScript
-
-- Tailwind CSS
-
-- Shadcn UI
-
-- Supabase
-
-Configurar integração completa com Supabase.
-
-==================================================
-
-BANCO DE DADOS
-
-==================================================
-
-Criar tabela:
-
-profiles
-
-Campos:
-
-id (uuid)
-
-slug (texto único)
-
-photo_url
-
-name
-
-bio
-
-instagram
-
-facebook
-
-tiktok
-
-youtube
-
-linkedin
-
-whatsapp
-
-telegram
-
-twitter
-
-website
-
-custom_links (json)
-
-created_at
-
-updated_at
-
-Criar índice único para slug.
-
-==================================================
-
-FLUXO
-
-==================================================
-
-SEM LOGIN nesta primeira versão.
-
-Qualquer visitante pode:
-
-1. Criar perfil
-
-2. Publicar perfil
-
-3. Receber URL única
-
-Exemplo:
-
-/profile/abc123
-
-Ao publicar:
-
-- Salvar no Supabase
-
-- Gerar slug único automaticamente
-
-- Retornar URL pública
-
-==================================================
-
-HOME PAGE
-
-==================================================
-
-Hero principal moderno.
-
-Título:
-
-"Seu perfil digital em um toque"
-
-Subtítulo:
-
-"Crie uma página personalizada para compartilhar por QR Code e NFC."
-
-Botão:
-
-Criar Meu Link
-
-Visual premium.
-
-==================================================
-
-FORMULÁRIO
-
-==================================================
-
-SEÇÃO PERFIL
-
-- Upload de foto
-
-- Nome
-
-- Bio
-
-==================================================
-
-REDES SOCIAIS
-
-==================================================
-
-Campos opcionais:
-
-Instagram
-
-Facebook
-
-TikTok
-
-YouTube
-
-LinkedIn
-
-WhatsApp
-
-Telegram
-
-X/Twitter
-
-Website
-
-==================================================
-
-LINKS PERSONALIZADOS
-
-==================================================
-
-Permitir adicionar múltiplos links.
-
-Campos:
-
-Título
-
-URL
-
-Botão:
-
-Adicionar Link
-
-Salvar todos no campo JSON custom_links.
-
-==================================================
-
-PREVIEW EM TEMPO REAL
-
-==================================================
-
-Mostrar:
-
-Foto
-
-Nome
-
-Bio
-
-Redes sociais
-
-Links personalizados
-
-Atualização instantânea.
-
-==================================================
-
-PUBLICAR
-
-==================================================
-
-Botão:
-
-Publicar Perfil
-
-Ao clicar:
-
-1. Validar formulário
-
-2. Fazer upload da foto para Supabase Storage
-
-3. Salvar perfil no banco
-
-4. Gerar slug único
-
-5. Criar URL pública
-
-Exemplo:
-
-https://dominio.com/profile/abc123
-
-==================================================
-
-PÁGINA PÚBLICA
-
-==================================================
-
-Rota dinâmica:
-
-/profile/:slug
-
-Buscar dados diretamente do Supabase.
-
-Mostrar:
-
-- Foto circular
-
-- Nome
-
-- Bio
-
-- Redes sociais
-
-- Links personalizados
-
-Design extremamente bonito.
-
-Mobile first.
-
-==================================================
-
-QR CODE
-
-==================================================
-
-Após publicação:
-
-Gerar QR Code da URL pública.
-
-Mostrar:
-
-Link
-
-QR Code
-
-Botões:
-
-- Copiar Link
-
-- Compartilhar
-
-- Baixar QR Code
-
-==================================================
-
-NFC READY
-
-==================================================
-
-Adicionar seção:
-
-"Pronto para NFC"
-
-Texto:
-
-"Utilize esta URL para gravar em qualquer Tag NFC compatível."
-
-==================================================
-
-DESIGN
-
-==================================================
-
-Tema escuro premium.
-
-Inspirado em:
-
-- Linktree
-
-- Beacons
-
-- Bento.me
-
-Utilizar:
-
-- Glassmorphism
-
-- Bordas arredondadas
-
-- Sombras suaves
-
-- Animações modernas
-
-==================================================
-
-REGRAS IMPORTANTES
-
-==================================================
-
-- Todos os perfis devem ser persistidos no Supabase.
-
-- Nenhum dado importante deve depender de Local Storage.
-
-- O perfil deve continuar funcionando mesmo após atualizar a página.
-
-- As páginas públicas devem ser indexáveis.
-
-- Código limpo e escalável.
-
-- Preparar estrutura para futura integração com login e gravação de Tags NFC.
-
-ENTREGAR O PROJETO COMPLETO E FUNCIONAL.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://taplink-digital-me.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/68720da3-6c40-48a8-9716-e8f495180a3b).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```text
+/srv/nilson/data/authera-link-card
+        ├── authera-link-card.db
+        └── uploads/
 ```
+
+O banco usa WAL, foreign keys, busy timeout e transações para os contadores.
+
+## Primeiro deploy no JARVIS
+
+```bash
+cd /srv/nilson/apps
+
+git clone -b authera-link-card-local \
+  https://github.com/nilsondb/taplink-digital-me.git \
+  authera-link-card
+
+cd /srv/nilson/apps/authera-link-card
+
+cp .env.example .env
+nano .env
+```
+
+Antes de subir, ajuste pelo menos:
+
+```env
+APP_URL=http://192.168.100.37:8085
+BOOTSTRAP_ADMIN_EMAIL=seu-email@exemplo.com
+```
+
+Crie o diretório persistente e entregue a propriedade ao UID do usuário `node` do container (1000):
+
+```bash
+sudo mkdir -p /srv/nilson/data/authera-link-card/uploads
+sudo chown -R 1000:1000 /srv/nilson/data/authera-link-card
+sudo chmod -R 750 /srv/nilson/data/authera-link-card
+```
+
+Suba:
+
+```bash
+docker compose up -d --build
+```
+
+Acesse:
+
+```text
+http://192.168.100.37:8085
+```
+
+Valide:
+
+```bash
+curl -s http://127.0.0.1:8085/api/health
+
+docker compose ps
+
+docker logs --tail 100 authera-link-card
+```
+
+## Conta administradora
+
+O e-mail definido em `BOOTSTRAP_ADMIN_EMAIL` recebe papel `admin` quando fizer o cadastro. Nenhuma senha padrão é criada pelo sistema.
+
+## Recuperação de senha
+
+O backend suporta SMTP. Enquanto `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` e `SMTP_FROM` não estiverem configurados, o login/cadastro funcionam normalmente, mas o envio de recuperação de senha permanece desativado de forma segura.
+
+## Backup
+
+Inclua no backup do SRV-IA:
+
+```text
+/srv/nilson/data/authera-link-card/
+```
+
+Para backup consistente do SQLite em execução, prefira a API de backup do SQLite ou o comando `.backup`, por exemplo:
+
+```bash
+sqlite3 /srv/nilson/data/authera-link-card/authera-link-card.db \
+  ".backup '/caminho/do/backup/authera-link-card.db'"
+```
+
+Validação:
+
+```bash
+sqlite3 /srv/nilson/data/authera-link-card/authera-link-card.db \
+  "PRAGMA integrity_check;"
+```
+
+## Segurança
+
+- não versionar `.env`
+- não expor o arquivo SQLite diretamente
+- manter `/srv/nilson/data/authera-link-card` fora da raiz pública
+- usar HTTPS quando o serviço for publicado na internet
+- gerar token longo na tela de integração do SaaS Center
+- configurar SMTP antes de disponibilizar a recuperação de senha ao público

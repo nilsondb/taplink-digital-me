@@ -51,9 +51,8 @@ export function ProfilePreview({ data }: { data: ProfileData }) {
         ))}
       </div>
 
-      <div className="mt-8 text-[10px] uppercase tracking-widest text-muted-foreground">TapLink NFC</div>
+      <div className="mt-8 text-[10px] uppercase tracking-widest text-muted-foreground">Authera Link Card</div>
     </div>
     </div>
   );
 }
-

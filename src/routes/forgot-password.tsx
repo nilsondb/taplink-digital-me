@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { AuthShell, AuthField } from "./login";
 
 export const Route = createFileRoute("/forgot-password")({
-  head: () => ({ meta: [{ title: "Recuperar senha — TapLink NFC" }] }),
+  head: () => ({ meta: [{ title: "Recuperar senha — Authera Link Card" }] }),
   component: ForgotPage,
 });
 
@@ -18,23 +18,28 @@ function ForgotPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setLoading(false);
-    if (error) { toast.error(error.message); return; }
-    setSent(true);
-    toast.success("Enviamos o link de recuperação.");
+    try {
+      await apiFetch<{ ok: boolean; message: string }>("/api/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+      setSent(true);
+      toast.success("Solicitação processada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível recuperar a senha");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  return <AuthShell title="Recuperar senha" subtitle="Enviaremos um link para resetar sua senha">
+  return <AuthShell title="Recuperar senha" subtitle="Enviaremos um link seguro para seu e-mail">
     {sent ? (
       <div className="text-center text-sm text-muted-foreground">
-        Confira seu email <span className="text-foreground font-medium">{email}</span> e clique no link.
+        Se <span className="text-foreground font-medium">{email}</span> estiver cadastrado, você receberá as instruções.
       </div>
     ) : (
       <form onSubmit={submit} className="space-y-3">
-        <AuthField label="Email" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
+        <AuthField label="E-mail" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
         <button disabled={loading} className="btn-primary w-full py-3.5 rounded-2xl font-semibold inline-flex items-center justify-center gap-2">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enviar link"}
         </button>

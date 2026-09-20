@@ -1,18 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, Sparkles } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { CreditCard, Loader2 } from "lucide-react";
+import { apiFetch } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth";
+import type { LocalUser } from "@/lib/local-types";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Entrar — TapLink NFC" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Authera Link Card" }] }),
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,16 +23,24 @@ function LoginPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Bem-vindo de volta!");
-    navigate({ to: "/dashboard", replace: true });
+    try {
+      await apiFetch<{ user: LocalUser }>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      await refresh();
+      toast.success("Bem-vindo de volta!");
+      navigate({ to: "/dashboard", replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível entrar");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  return <AuthShell title="Entre na sua conta" subtitle="Acesse seu dashboard TapLink NFC">
+  return <AuthShell title="Entre na sua conta" subtitle="Acesse seu Authera Link Card">
     <form onSubmit={submit} className="space-y-3">
-      <AuthField label="Email" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
+      <AuthField label="E-mail" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
       <AuthField label="Senha" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
       <div className="text-right">
         <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">Esqueci minha senha</Link>
@@ -50,9 +59,12 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
   return (
     <div className="min-h-screen px-6 py-10 grid place-items-center">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl btn-primary grid place-items-center"><Sparkles className="w-5 h-5" /></div>
-          <span className="font-display font-bold text-xl">TapLink<span className="gradient-text">NFC</span></span>
+        <Link to="/" className="flex flex-col items-center justify-center gap-2 mb-8 text-center">
+          <div className="w-11 h-11 rounded-xl btn-primary grid place-items-center"><CreditCard className="w-5 h-5" /></div>
+          <div>
+            <div className="font-display font-bold text-xl">Authera <span className="gradient-text">Link Card</span></div>
+            <div className="text-xs text-muted-foreground mt-0.5">Sua presença digital em um toque</div>
+          </div>
         </Link>
         <div className="glass rounded-3xl p-7">
           <h1 className="font-display font-bold text-2xl">{title}</h1>

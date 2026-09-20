@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Loader2, LogOut, Sparkles, LayoutDashboard, Pencil, Shield } from "lucide-react";
+import { CreditCard, Loader2, LogOut, LayoutDashboard, Pencil, Shield } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useIsAdmin } from "@/lib/admin";
-import { supabase } from "@/integrations/supabase/client";
+import { apiFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthLayout() {
-  const { user, loading } = useAuth();
+  const { user, loading, refresh } = useAuth();
   const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
@@ -24,17 +24,24 @@ function AuthLayout() {
   }
 
   async function logout() {
-    await supabase.auth.signOut();
-    toast.success("Até breve!");
-    navigate({ to: "/", replace: true });
+    try {
+      await apiFetch<{ ok: boolean }>("/api/auth/logout", { method: "POST" });
+    } finally {
+      await refresh();
+      toast.success("Até breve!");
+      navigate({ to: "/", replace: true });
+    }
   }
 
   return (
     <div className="min-h-screen">
-      <header className="px-6 py-5 max-w-6xl mx-auto flex items-center justify-between">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl btn-primary grid place-items-center"><Sparkles className="w-5 h-5" /></div>
-          <span className="font-display font-bold">TapLink<span className="gradient-text">NFC</span></span>
+      <header className="px-6 py-5 max-w-6xl mx-auto flex items-center justify-between gap-3">
+        <Link to="/dashboard" className="flex items-center gap-2 min-w-0">
+          <div className="w-9 h-9 rounded-xl btn-primary grid place-items-center shrink-0"><CreditCard className="w-5 h-5" /></div>
+          <div className="min-w-0">
+            <span className="font-display font-bold whitespace-nowrap">Authera <span className="gradient-text">Link Card</span></span>
+            <div className="text-[10px] text-muted-foreground hidden md:block">Sua presença digital em um toque</div>
+          </div>
         </Link>
         <nav className="flex items-center gap-1">
           <Link to="/dashboard" className="px-3 py-2 rounded-lg text-sm hover:bg-white/5 inline-flex items-center gap-2" activeProps={{ className: "px-3 py-2 rounded-lg text-sm bg-white/5 inline-flex items-center gap-2" }}>
