@@ -79,7 +79,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <body>
         {children}
         <script
-          src="https://chat.authera.ia.br/widget.js"
+          src="https://chat.authera.ia.br/widget.js?v=20260920-3"
           data-source="Authera Link Card"
           data-home-only="true"
           defer
