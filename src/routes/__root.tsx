@@ -81,6 +81,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           src="https://chat.authera.ia.br/widget.js"
           data-source="Authera Link Card"
+          data-home-only="true"
           defer
         />
         <Scripts />
