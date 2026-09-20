@@ -76,7 +76,15 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      <body>
+        {children}
+        <script
+          src="https://chat.authera.ia.br/widget.js"
+          data-source="Authera Link Card"
+          defer
+        />
+        <Scripts />
+      </body>
     </html>
   );
 }
